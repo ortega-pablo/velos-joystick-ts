@@ -1,7 +1,12 @@
 import { useState } from "react";
 import { PermissionsAndroid, Platform } from "react-native";
-import { BleError, BleManager, Characteristic, Device } from "react-native-ble-plx";
-import { atob } from "react-native-quick-base64"
+import {
+  BleError,
+  BleManager,
+  Characteristic,
+  Device,
+} from "react-native-ble-plx";
+import { atob } from "react-native-quick-base64";
 
 type PermissionCallback = (result: boolean) => void;
 
@@ -12,11 +17,24 @@ interface BluetoothLowEnergyApi {
   connectToDevice(device: Device): Promise<void>;
   scanForDevices(): void;
   allDevices: Device[];
+  connectedDevice: Device | null;
+  characteristicUpdate: (
+    error: BleError | null,
+    characteristic: Characteristic | null
+  ) => void;
 }
 
 export default function useBLE(): BluetoothLowEnergyApi {
   const [allDevices, setAllDevices] = useState<Device[]>([]);
-  const [device, setConnectedDevice] = useState<Device | null>(null);
+  const [connectedDevice, setConnectedDevice] = useState<Device | null>(null);
+  const ServiceUUID = "4fdc2362-1e72-11ee-be56-0242ac120002";
+  const characteristicsUUID = {
+    gamePad: "58d3d514-1e72-11ee-be56-0242ac120002",
+    velocity: "5d269868-1e72-11ee-be56-0242ac120002",
+    battery: "64bd7286-1e72-11ee-be56-0242ac120002",
+    latitude: "6be2ff7c-1e72-11ee-be56-0242ac120002",
+    longitude: "71120a60-1e72-11ee-be56-0242ac120002",
+  };
 
   const requestPermissions = async (callback: PermissionCallback) => {
     if (Platform.OS === "android") {
@@ -24,10 +42,10 @@ export default function useBLE(): BluetoothLowEnergyApi {
         PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION,
         {
           title: "Location Permission",
-          message: "Bluetooth Low Energy Needs Location Permission",
-          buttonNeutral: "Maybe Later",
-          buttonNegative: "Cancel",
-          buttonPositive: "OK",
+          message: "Velos necesita permisos de localización",
+          buttonNeutral: "Luego",
+          buttonNegative: "Cancelar",
+          buttonPositive: "Permitir",
         }
       );
       callback(grantedStatus === PermissionsAndroid.RESULTS.GRANTED);
@@ -35,9 +53,6 @@ export default function useBLE(): BluetoothLowEnergyApi {
       callback(true);
     }
   };
-
-  const isDuplicteDevice = (devices: Device[], nextDevice: Device) =>
-    devices.findIndex((device) => nextDevice.id === device.id) > -1;
 
   const scanForDevices = () => {
     bleManager.startDeviceScan(
@@ -57,7 +72,7 @@ export default function useBLE(): BluetoothLowEnergyApi {
             const updatedDevices = prevDevices.filter(
               (prevDevice) => prevDevice !== null
             ) as Device[];
-            device?.name === null && (device.name = "Dispositivo desconocido")
+            device?.name === null && (device.name = "Dispositivo desconocido");
             return [...updatedDevices, device].filter(
               (device) => device !== null
             ) as Device[];
@@ -70,17 +85,138 @@ export default function useBLE(): BluetoothLowEnergyApi {
 
   const connectToDevice = async (device: Device) => {
     try {
-      const deviceConnection = await bleManager.connectToDevice(device.id);
-      setConnectedDevice(deviceConnection);
-      bleManager.stopDeviceScan();
+      await bleManager.stopDeviceScan();
+      device.connect()
+      .then((device) => {
+        return device.discoverAllServicesAndCharacteristics()
+    })
+    .then((device) => {
+       console.log('Este es el device: ', device)
+    }).catch((error) => {
+      console.log('Error al conectar el dispositivo')
+  });
+      /* const connectedDevice = await bleManager.connectToDevice(device.id);
+      setConnectedDevice(connectedDevice);
+      await connectedDevice.discoverAllServicesAndCharacteristics();
+      startStreamingData(connectedDevice);
+      connectedDevice.monitorCharacteristicForService(
+        ServiceUUID,
+        characteristicsUUID.gamePad,
+        characteristicUpdate
+      );
+      connectedDevice.monitorCharacteristicForService(
+        ServiceUUID,
+        characteristicsUUID.velocity,
+        characteristicUpdate
+      );
+      connectedDevice.monitorCharacteristicForService(
+        ServiceUUID,
+        characteristicsUUID.battery,
+        characteristicUpdate
+      );
+      connectedDevice.monitorCharacteristicForService(
+        ServiceUUID,
+        characteristicsUUID.latitude,
+        characteristicUpdate
+      );
+      connectedDevice.monitorCharacteristicForService(
+        ServiceUUID,
+        characteristicsUUID.longitude,
+        characteristicUpdate
+      ); */
     } catch (error) {
       console.log("Error al conectar:", error);
     }
   };
 
+  const disconnectFromDevice = () => {
+    if (connectedDevice) {
+      bleManager.cancelDeviceConnection(connectedDevice.id);
+      setConnectedDevice(null);
+    }
+  };
+
   const startStreamingData = async (device: Device) => {
     if (device) {
-      device.monitorCharacteristicForService("", "", () => {});
+      device.monitorCharacteristicForService(
+        ServiceUUID,
+        characteristicsUUID.gamePad,
+        (error: BleError | null, characteristic: Characteristic | null) => {
+          const rawData = atob(characteristic?.value ?? "");
+          if (error) {
+            console.log(error);
+          } else if (!characteristic?.value) {
+            console.log("No characteristic Found");
+          } else {
+            console.log("rawData: ", rawData);
+            console.log("Valor de la característica: ", characteristic?.value);
+          }
+        }
+      );
+
+      device.monitorCharacteristicForService(
+        ServiceUUID,
+        characteristicsUUID.velocity,
+        (error: BleError | null, characteristic: Characteristic | null) => {
+          const rawData = atob(characteristic?.value ?? "");
+          if (error) {
+            console.log(error);
+          } else if (!characteristic?.value) {
+            console.log("No characteristic Found");
+          } else {
+            console.log("rawData: ", rawData);
+            console.log("Valor de la característica: ", characteristic?.value);
+          }
+        }
+      );
+
+      device.monitorCharacteristicForService(
+        ServiceUUID,
+        characteristicsUUID.battery,
+        (error: BleError | null, characteristic: Characteristic | null) => {
+          const rawData = atob(characteristic?.value ?? "");
+          if (error) {
+            console.log(error);
+          } else if (!characteristic?.value) {
+            console.log("No characteristic Found");
+          } else {
+            console.log("rawData: ", rawData);
+            console.log("Valor de la característica: ", characteristic?.value);
+          }
+        }
+      );
+
+      device.monitorCharacteristicForService(
+        ServiceUUID,
+        characteristicsUUID.latitude,
+        (error: BleError | null, characteristic: Characteristic | null) => {
+          const rawData = atob(characteristic?.value ?? "");
+          if (error) {
+            console.log(error);
+          } else if (!characteristic?.value) {
+            console.log("No characteristic Found");
+          } else {
+            console.log("rawData: ", rawData);
+            console.log("Valor de la característica: ", characteristic?.value);
+          }
+        }
+      );
+
+      device.monitorCharacteristicForService(
+        ServiceUUID,
+        characteristicsUUID.longitude,
+        (error: BleError | null, characteristic: Characteristic | null) => {
+          const rawData = atob(characteristic?.value ?? "");
+          if (error) {
+            console.log(error);
+          } else if (!characteristic?.value) {
+            console.log("No characteristic Found");
+          } else {
+            console.log("rawData: ", rawData);
+            console.log("Valor de la característica: ", characteristic?.value);
+          }
+        }
+      );
     } else {
       console.log("Dispositivo no conectado");
     }
@@ -90,21 +226,27 @@ export default function useBLE(): BluetoothLowEnergyApi {
     error: BleError | null,
     characteristic: Characteristic | null
   ) => {
-    if (error) {
-      console.log(error)
-      return
-    } else if (!characteristic?.value) {
-      console.log('No characteristic Found')
-      return
-    }
-  }
+    const rawData = atob(characteristic?.value ?? "");
 
-  //const rawData = atob(characteristic.value)
+    if (error) {
+      console.log(error);
+      return;
+    } else if (!characteristic?.value) {
+      console.log("No characteristic Found");
+      return;
+    } else {
+      console.log("rawData: ", rawData);
+      console.log("Valor de la característica: ", characteristic?.value);
+      return;
+    }
+  };
 
   return {
     requestPermissions,
     scanForDevices,
     allDevices,
+    connectedDevice,
     connectToDevice,
+    characteristicUpdate,
   };
 }

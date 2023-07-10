@@ -9,11 +9,16 @@ import {
   SafeAreaView,
   TouchableOpacity,
 } from "react-native";
+import { NavigationProp } from "@react-navigation/native";
 import { BleManager, Device } from "react-native-ble-plx";
 import useBLE from "../utils/useBLE";
 import DeviceModal from "../components/DeviceConnectionModal";
 
-const BluetoothPairing = () => {
+interface BluetoothPairingProps {
+  navigation: NavigationProp<any, any>;
+}
+
+const BluetoothPairing = ({ navigation }: BluetoothPairingProps) => {
   const [isModalVisible, setIsModalVisible] = useState<boolean>(false);
 
   const { requestPermissions, scanForDevices, allDevices, connectToDevice } =
@@ -34,27 +39,27 @@ const BluetoothPairing = () => {
 
   return (
     <SafeAreaView style={styles.container}>
-      <View style={styles.titleWrapper}>
-        <Image
-          source={require("../../assets/logo-velos.png")}
-          style={styles.logo}
-        />
-        <Text style={styles.titleText}>Bluetooth Devices</Text>
-        {allDevices.map((device: Device) => (
-          <Text key={device.id}>
-            {device.name}
-            {device.id}
-          </Text>
-        ))}
-      </View>
+      <Image
+        source={require("../../assets/logo-velos.png")}
+        style={styles.logo}
+      />
+      <Text style={styles.titleText}>Dispositivos bluetooth</Text>
+      {allDevices.map((device: Device) => (
+        <Text key={device.id}>
+          {device.name}
+          {device.id}
+        </Text>
+      ))}
+
       <TouchableOpacity onPress={openModal} style={styles.ctaButton}>
-        <Text style={styles.ctaButtonText}>{"Conectar"}</Text>
+        <Text style={styles.ctaButtonText}>{"Buscar"}</Text>
       </TouchableOpacity>
       <DeviceModal
         closeModal={hideModal}
         visible={isModalVisible}
         connectToPeripheral={connectToDevice}
         devices={allDevices}
+        navigation={navigation}
       />
     </SafeAreaView>
   );
@@ -63,9 +68,9 @@ const BluetoothPairing = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: "center",
+    justifyContent: "space-around",
     alignItems: "center",
-    backgroundColor: "#A6E3EA",
+    backgroundColor: "withe",
   },
   logo: {
     width: 250,
@@ -80,14 +85,14 @@ const styles = StyleSheet.create({
     fontSize: 30,
     fontWeight: "bold",
     textAlign: "center",
-    marginHorizontal: 20,
     color: "black",
   },
   ctaButton: {
-    backgroundColor: "#FF6060",
+    backgroundColor: "#005969",
     justifyContent: "center",
     alignItems: "center",
     height: 50,
+    width: 150,
     marginHorizontal: 20,
     marginBottom: 5,
     borderRadius: 8,

@@ -24,6 +24,11 @@ const StackNavigator = () => {
         component={screens.Home}
         options={{ headerShown: true }}
       />
+      <Stack.Screen
+        name='GamePad'
+        component={screens.GamePad}
+        options={{ headerShown: false }}
+      />
     </Stack.Navigator>
   );
 };

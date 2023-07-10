@@ -7,13 +7,16 @@ import {
   Text,
   StyleSheet,
   TouchableOpacity,
+  Alert,
 } from "react-native";
+import { NavigationProp } from "@react-navigation/native";
 import { Device } from "react-native-ble-plx";
 
 type DeviceModalListItemProps = {
   item: ListRenderItemInfo<Device>;
-  connectToPeripheral: (device: Device) => void;
+  connectToDevice: (device: Device) => void;
   closeModal: () => void;
+  navigation: NavigationProp<any, any>;
 };
 
 type DeviceModalProps = {
@@ -21,19 +24,38 @@ type DeviceModalProps = {
   visible: boolean;
   connectToPeripheral: (device: Device) => void;
   closeModal: () => void;
+  navigation: NavigationProp<any, any>;
 };
 
 const DeviceModalListItem: FC<DeviceModalListItemProps> = (props) => {
-  const { item, connectToPeripheral, closeModal } = props;
+  
+  const { item, connectToDevice, closeModal, navigation } = props;
+
+  const createTwoButtonAlert = () =>
+    Alert.alert(
+      "Conectar dispositivo",
+      "¿Seguro que desea conectarse a este dispositivo?",
+      [
+        {
+          text: "Cancelar",
+          onPress: () => console.log("Cancel Pressed"),
+          style: "cancel",
+        },
+        { text: "OK", onPress: () => connectAndCloseModal() },
+      ]
+    );
+
 
   const connectAndCloseModal = useCallback(() => {
-    connectToPeripheral(item.item);
+    console.log('Este es el item: ', item)
+    connectToDevice(item.item);
     closeModal();
-  }, [closeModal, connectToPeripheral, item.item]);
+    navigation.navigate("GamePad");
+  }, [closeModal, connectToDevice, item.item]);
 
   return (
     <TouchableOpacity
-      onPress={connectAndCloseModal}
+      onPress={createTwoButtonAlert}
       style={modalStyle.ctaButton}
     >
       <Text style={modalStyle.ctaButtonText}>{item.item.name}</Text>
@@ -42,15 +64,16 @@ const DeviceModalListItem: FC<DeviceModalListItemProps> = (props) => {
 };
 
 const DeviceModal: FC<DeviceModalProps> = (props) => {
-  const { devices, visible, connectToPeripheral, closeModal } = props;
+  const { devices, visible, connectToPeripheral, closeModal, navigation } = props;
 
   const renderDeviceModalListItem = useCallback(
     (item: ListRenderItemInfo<Device>) => {
       return (
         <DeviceModalListItem
           item={item}
-          connectToPeripheral={connectToPeripheral}
+          connectToDevice={connectToPeripheral}
           closeModal={closeModal}
+          navigation={navigation}
         />
       );
     },
@@ -60,14 +83,12 @@ const DeviceModal: FC<DeviceModalProps> = (props) => {
   return (
     <Modal
       style={modalStyle.modalContainer}
-      animationType="slide"
+      animationType='slide'
       transparent={false}
       visible={visible}
     >
       <SafeAreaView style={modalStyle.modalTitle}>
-        <Text style={modalStyle.modalTitleText}>
-          Tap on a device to connect
-        </Text>
+        <Text style={modalStyle.modalTitleText}>Seleccione un dispositivo</Text>
         <FlatList
           contentContainerStyle={modalStyle.modalFlatlistContiner}
           data={devices}
@@ -81,7 +102,9 @@ const DeviceModal: FC<DeviceModalProps> = (props) => {
 const modalStyle = StyleSheet.create({
   modalContainer: {
     flex: 1,
-    backgroundColor: "#f2f2f2",
+    justifyContent: "space-around",
+    alignItems: "center",
+    backgroundColor: "white",
   },
   modalFlatlistContiner: {
     flex: 1,
@@ -107,7 +130,7 @@ const modalStyle = StyleSheet.create({
     textAlign: "center",
   },
   ctaButton: {
-    backgroundColor: "#FF6060",
+    backgroundColor: "#005969",
     justifyContent: "center",
     alignItems: "center",
     height: 50,
