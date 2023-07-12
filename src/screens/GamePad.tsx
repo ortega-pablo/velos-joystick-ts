@@ -3,30 +3,35 @@ import { StyleSheet, View, TouchableOpacity, Text, Image } from "react-native";
 import VelocityOdometer from "../components/gamePad/VelocityOdometer";
 import BatteryLevel from "../components/gamePad/BatteryLevel";
 import GPSLocation from "../components/gamePad/GPSLocation";
+import useBLE from "../utils/useBLE";
+import { Device } from "react-native-ble-plx";
 
 const GamePad = () => {
-  const handleButtonPress = (buttonName: string) => {
-    // Lógica para manejar la pulsación de los botones
-    console.log(`Button pressed: ${buttonName}`);
+
+  const { changeGamepad } = useBLE();
+  
+  const handleButtonPress = ( buttonValue: string) => {
+    changeGamepad(buttonValue)
+    console.log(`Button pressed: ${buttonValue}`);
   };
 
   return (
     <View style={styles.container}>
-        <View style={styles.titleWrapper}>
+      <View style={styles.titleWrapper}>
         <Image
           source={require("../../assets/logo-velos.png")}
           style={styles.logo}
         />
       </View>
       <View style={styles.row}>
-        <VelocityOdometer deviceSpeed={150.5} />
-        <BatteryLevel deviceBatteryLevel={60} />
+        <VelocityOdometer deviceSpeed={0} />
+        <BatteryLevel deviceBatteryLevel={69} />
       </View>
 
       <View style={styles.joystick}>
         <TouchableOpacity
           style={[styles.button, styles.topButton]}
-          onPress={() => handleButtonPress("Arriba")}
+          onPress={() => handleButtonPress("U")}
         >
           <Text style={styles.buttonText}>▲</Text>
         </TouchableOpacity>
@@ -61,7 +66,7 @@ const GamePad = () => {
         </TouchableOpacity>
       </View>
 
-      <GPSLocation latitude={-34.605425} longitude={-58.381555} />
+      <GPSLocation latitude={-34.5747111} longitude={-58.4354939} />
 
       <View style={styles.rowLarge}>
         <TouchableOpacity
@@ -78,7 +83,6 @@ const GamePad = () => {
           <Text style={styles.buttonText}>Más</Text>
         </TouchableOpacity>
       </View>
-
     </View>
   );
 };
@@ -94,7 +98,6 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
     height: 20,
-    
   },
   logo: {
     width: 100,
@@ -103,8 +106,8 @@ const styles = StyleSheet.create({
   row: {
     flexDirection: "row",
     justifyContent: "space-around",
-},
-rowLarge: {
+  },
+  rowLarge: {
     flexDirection: "row",
     justifyContent: "space-around",
     width: "100%",

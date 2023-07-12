@@ -21,7 +21,7 @@ interface BluetoothPairingProps {
 const BluetoothPairing = ({ navigation }: BluetoothPairingProps) => {
   const [isModalVisible, setIsModalVisible] = useState<boolean>(false);
 
-  const { requestPermissions, scanForDevices, allDevices, connectToDevice } =
+  const { requestPermissions, scanForPeripherals, allDevices, connectToDevice } =
     useBLE();
 
   const hideModal = () => {
@@ -29,12 +29,8 @@ const BluetoothPairing = ({ navigation }: BluetoothPairingProps) => {
   };
 
   const openModal = async () => {
-    requestPermissions((isGranted: boolean) => {
-      if (isGranted) {
-        scanForDevices();
-        setIsModalVisible(true);
-      }
-    });
+        scanForPeripherals();
+        setIsModalVisible(true); 
   };
 
   return (

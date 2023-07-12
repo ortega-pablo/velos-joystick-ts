@@ -2,6 +2,9 @@ import { StyleSheet, Text, View } from "react-native";
 import React, { useEffect } from "react";
 import { NavigationProp } from "@react-navigation/native";
 import { Image } from "react-native";
+import { LogBox } from 'react-native';
+LogBox.ignoreLogs(['`new NativeEventEmitter()` was called']);
+
 
 interface WelcomeProps {
   navigation: NavigationProp<any, any>;

@@ -14,7 +14,7 @@ import { Device } from "react-native-ble-plx";
 
 type DeviceModalListItemProps = {
   item: ListRenderItemInfo<Device>;
-  connectToDevice: (device: Device) => void;
+  connectToPeripheral: (device: Device) => void;
   closeModal: () => void;
   navigation: NavigationProp<any, any>;
 };
@@ -29,7 +29,7 @@ type DeviceModalProps = {
 
 const DeviceModalListItem: FC<DeviceModalListItemProps> = (props) => {
   
-  const { item, connectToDevice, closeModal, navigation } = props;
+  const { item, connectToPeripheral, closeModal, navigation } = props;
 
   const createTwoButtonAlert = () =>
     Alert.alert(
@@ -41,17 +41,16 @@ const DeviceModalListItem: FC<DeviceModalListItemProps> = (props) => {
           onPress: () => console.log("Cancel Pressed"),
           style: "cancel",
         },
-        { text: "OK", onPress: () => connectAndCloseModal() },
+        { text: "Aceptar", onPress: () => connectAndCloseModal() },
       ]
     );
 
 
   const connectAndCloseModal = useCallback(() => {
-    console.log('Este es el item: ', item)
-    connectToDevice(item.item);
+    connectToPeripheral(item.item);
     closeModal();
     navigation.navigate("GamePad");
-  }, [closeModal, connectToDevice, item.item]);
+  }, [closeModal, connectToPeripheral, item.item]);
 
   return (
     <TouchableOpacity
@@ -71,7 +70,7 @@ const DeviceModal: FC<DeviceModalProps> = (props) => {
       return (
         <DeviceModalListItem
           item={item}
-          connectToDevice={connectToPeripheral}
+          connectToPeripheral={connectToPeripheral}
           closeModal={closeModal}
           navigation={navigation}
         />
