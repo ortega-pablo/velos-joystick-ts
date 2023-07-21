@@ -1,17 +1,19 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { StyleSheet, View, TouchableOpacity, Text, Image } from "react-native";
 import VelocityOdometer from "../components/gamePad/VelocityOdometer";
 import BatteryLevel from "../components/gamePad/BatteryLevel";
 import GPSLocation from "../components/gamePad/GPSLocation";
-import useBLE from "../utils/useBLE";
 import { Device } from "react-native-ble-plx";
+import { useAppDispatch, useAppSelector } from "../redux/store";
+import { startListening } from "../redux/slice";
 
 const GamePad = () => {
 
-  const { changeGamepad } = useBLE();
   
+
+  
+
   const handleButtonPress = ( buttonValue: string) => {
-    changeGamepad(buttonValue)
     console.log(`Button pressed: ${buttonValue}`);
   };
 
@@ -25,7 +27,7 @@ const GamePad = () => {
       </View>
       <View style={styles.row}>
         <VelocityOdometer deviceSpeed={0} />
-        <BatteryLevel deviceBatteryLevel={69} />
+        <BatteryLevel />
       </View>
 
       <View style={styles.joystick}>

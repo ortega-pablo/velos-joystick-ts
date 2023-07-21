@@ -11,26 +11,25 @@ import {
 } from "react-native";
 import { NavigationProp } from "@react-navigation/native";
 import { BleManager, Device } from "react-native-ble-plx";
-import useBLE from "../utils/useBLE";
-import DeviceModal from "../components/DeviceConnectionModal";
+import DeviceModal from "../components/DeviceModal";
+import { useAppSelector } from "../redux/store";
 
 interface BluetoothPairingProps {
   navigation: NavigationProp<any, any>;
+  closeModal: () => void;
+  visible: boolean;
 }
 
 const BluetoothPairing = ({ navigation }: BluetoothPairingProps) => {
+
   const [isModalVisible, setIsModalVisible] = useState<boolean>(false);
-
-  const { requestPermissions, scanForPeripherals, allDevices, connectToDevice } =
-    useBLE();
-
+  
   const hideModal = () => {
     setIsModalVisible(false);
   };
 
   const openModal = async () => {
-        scanForPeripherals();
-        setIsModalVisible(true); 
+    setIsModalVisible(true);
   };
 
   return (
@@ -40,22 +39,14 @@ const BluetoothPairing = ({ navigation }: BluetoothPairingProps) => {
         style={styles.logo}
       />
       <Text style={styles.titleText}>Dispositivos bluetooth</Text>
-      {allDevices.map((device: Device) => (
-        <Text key={device.id}>
-          {device.name}
-          {device.id}
-        </Text>
-      ))}
 
       <TouchableOpacity onPress={openModal} style={styles.ctaButton}>
-        <Text style={styles.ctaButtonText}>{"Buscar"}</Text>
+        <Text style={styles.ctaButtonText}>{"Buscar Dispositivos"}</Text>
       </TouchableOpacity>
-      <DeviceModal
+      <DeviceModal // Mostramos el componente DeviceModal
+        navigation={navigation}
         closeModal={hideModal}
         visible={isModalVisible}
-        connectToPeripheral={connectToDevice}
-        devices={allDevices}
-        navigation={navigation}
       />
     </SafeAreaView>
   );

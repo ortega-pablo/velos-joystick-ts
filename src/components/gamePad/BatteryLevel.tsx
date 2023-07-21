@@ -1,23 +1,23 @@
 import React, { useState, useEffect } from 'react';
 import { StyleSheet, View, Text } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import { useAppDispatch, useAppSelector } from '../../redux/store';
+import { startListening } from '../../redux/slice';
 
-interface BatteryLevelProps {
-  deviceBatteryLevel: number; // Nivel de batería del dispositivo externo (0-100)
-}
 
-const BatteryLevel: React.FC<BatteryLevelProps> = ({ deviceBatteryLevel }) => {
-  const [batteryLevel, setBatteryLevel] = useState(0); // Nivel de batería actual del componente
+const BatteryLevel = () => {
+  const dispatch = useAppDispatch()
 
-  useEffect(() => {
-    // Actualizar el nivel de batería del componente cuando cambia el nivel de batería del dispositivo externo
-    setBatteryLevel(deviceBatteryLevel);
-  }, [deviceBatteryLevel]);
+  const deviceBatteryLevel = useAppSelector((state) => state.ble.batteryValue)
 
+ useEffect(() => {
+    dispatch(startListening());
+  }, []);
+ 
   return (
     <View style={styles.container}>
       <Ionicons name="battery-full-outline" size={50} color="black" />
-      <Text style={styles.batteryLevelText}>{batteryLevel}%</Text>
+      <Text style={styles.batteryLevelText}>{deviceBatteryLevel !== null ? deviceBatteryLevel : '0'}%</Text>
     </View>
   );
 };
