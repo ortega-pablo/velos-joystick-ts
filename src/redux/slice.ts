@@ -6,7 +6,7 @@ interface BluetoothState {
   connectedDevice: DeviceReference | null;
   gamePadValue: string | null;
   velocityValue: string | null;
-  batteryValue: string | null;
+  batteryLevel: string | null;
   latitudeValue: string | null;
   longitudeValue: string | null;
 }
@@ -16,7 +16,7 @@ const initialState: BluetoothState = {
   connectedDevice: null,
   gamePadValue: null,
   velocityValue: null,
-  batteryValue: null,
+  batteryLevel: null,
   latitudeValue: null,
   longitudeValue: null,
 };
@@ -30,6 +30,7 @@ export type DevicesAction = PayloadAction<DeviceReference>;
 
 export const startScanning = createAction("bleState/startScanning");
 export const startListening = createAction("bleState/startListening");
+export const startListeningParams = createAction("bleState/startListeningParams");
 
 export const bleState = createSlice({
   name: "bleState",
@@ -43,15 +44,33 @@ export const bleState = createSlice({
     setConnectedDevice: (state, action: PayloadAction<DeviceReference>) => {
       state.connectedDevice = action.payload;
     },
-     setBatteryValue: (
+     setBatteryLevel: (
       state,
       action: PayloadAction<string | null>
     ) => {
-      state.batteryValue = action.payload;
+      state.batteryLevel = action.payload;
+    },
+    setVelocity: (
+      state,
+      action: PayloadAction<string | null>
+    ) => {
+      state.velocityValue = action.payload;
+    },
+    setLatitude: (
+      state,
+      action: PayloadAction<string | null>
+    ) => {
+      state.latitudeValue = action.payload;
+    },
+    setLongitude: (
+      state,
+      action: PayloadAction<string | null>
+    ) => {
+      state.longitudeValue = action.payload;
     },
   },
 });
 
-export const { setDevice, setConnectedDevice, setBatteryValue  } = bleState.actions;
+export const { setDevice, setConnectedDevice, setBatteryLevel, setVelocity, setLatitude, setLongitude } = bleState.actions;
 
 export default bleState.reducer;

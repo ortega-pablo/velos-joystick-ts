@@ -5,13 +5,21 @@ import BatteryLevel from "../components/gamePad/BatteryLevel";
 import GPSLocation from "../components/gamePad/GPSLocation";
 import { Device } from "react-native-ble-plx";
 import { useAppDispatch, useAppSelector } from "../redux/store";
-import { startListening } from "../redux/slice";
+import { startListening, startListeningParams } from "../redux/slice";
+import { sendGamepadValue } from "../redux/listener";
+
+
 
 const GamePad = () => {
+  const dispatch = useAppDispatch();
 
-  
+  useEffect(() => {
+    dispatch(startListeningParams());
+  },[]); 
 
-  
+  const sendData = (gamepadValue: string) => {
+    dispatch(sendGamepadValue(gamepadValue));
+  };
 
   const handleButtonPress = ( buttonValue: string) => {
     console.log(`Button pressed: ${buttonValue}`);
@@ -26,35 +34,35 @@ const GamePad = () => {
         />
       </View>
       <View style={styles.row}>
-        <VelocityOdometer deviceSpeed={0} />
+        <VelocityOdometer />
         <BatteryLevel />
       </View>
 
       <View style={styles.joystick}>
         <TouchableOpacity
           style={[styles.button, styles.topButton]}
-          onPress={() => handleButtonPress("U")}
+          onPress={() => sendData("U")}
         >
           <Text style={styles.buttonText}>▲</Text>
         </TouchableOpacity>
         <View style={styles.row}>
           <TouchableOpacity
             style={styles.button}
-            onPress={() => handleButtonPress("Izquierda")}
+            onPress={() => sendData("L")}
           >
             <Text style={styles.buttonText}>◀</Text>
           </TouchableOpacity>
 
           <TouchableOpacity
             style={[styles.button]}
-            onPress={() => handleButtonPress("Botón central")}
+            onPress={() => sendData("S")}
           >
             <Text style={styles.buttonText}>Detener</Text>
           </TouchableOpacity>
 
           <TouchableOpacity
             style={styles.button}
-            onPress={() => handleButtonPress("Derecha")}
+            onPress={() => sendData("R")}
           >
             <Text style={styles.buttonText}>▶</Text>
           </TouchableOpacity>
@@ -62,13 +70,13 @@ const GamePad = () => {
 
         <TouchableOpacity
           style={[styles.button, styles.bottomButton]}
-          onPress={() => handleButtonPress("Abajo")}
+          onPress={() => sendData("D")}
         >
           <Text style={styles.buttonText}>▼</Text>
         </TouchableOpacity>
       </View>
 
-      <GPSLocation latitude={-34.5747111} longitude={-58.4354939} />
+      <GPSLocation />
 
       <View style={styles.rowLarge}>
         <TouchableOpacity

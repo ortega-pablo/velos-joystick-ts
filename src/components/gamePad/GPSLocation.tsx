@@ -1,29 +1,31 @@
 import React, { useState, useEffect } from 'react';
 import { StyleSheet, View, Text } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import { useAppSelector } from '../../redux/store';
 
-interface GPSLocationProps {
-  latitude: number; // Latitud del dispositivo externo
-  longitude: number; // Longitud del dispositivo externo
-}
 
-const GPSLocation: React.FC<GPSLocationProps> = ({ latitude, longitude }) => {
-  const [location, setLocation] = useState({ latitude: 0, longitude: 0 }); // Coordenadas GPS actuales del componente
+
+const GPSLocation = () => {
+  const deviceLatitude = useAppSelector((state) => state.ble.latitudeValue)
+  const deviceLongitude = useAppSelector((state) => state.ble.longitudeValue)
 
   useEffect(() => {
-    // Actualizar las coordenadas GPS del componente cuando cambian las coordenadas del dispositivo externo
-    setLocation({ latitude, longitude });
-  }, [latitude, longitude]);
+    console.log('Latitud actualizada: ', deviceLatitude)
+  } , [deviceLatitude])
+
+  useEffect(() => {
+    console.log('Longitud actualizada: ', deviceLongitude)
+  } , [deviceLongitude])
 
   return (
     <View style={styles.container}>
       <Ionicons name="location-outline" size={50} color="black" />
       <View>
       <Text style={styles.locationText}>
-        Latitud: {location.latitude.toFixed(6)}
+        Latitud: {deviceLatitude !== null ? `${deviceLatitude}` : "Unknown"}
       </Text>
       <Text style={styles.locationText}>
-        Longitud: {location.longitude.toFixed(6)}
+        Longitud: {deviceLongitude !== null ? `${deviceLongitude}` : "Unknown"}
       </Text>
       </View>
     </View>

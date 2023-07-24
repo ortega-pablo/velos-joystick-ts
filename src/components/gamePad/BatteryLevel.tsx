@@ -3,21 +3,23 @@ import { StyleSheet, View, Text } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useAppDispatch, useAppSelector } from '../../redux/store';
 import { startListening } from '../../redux/slice';
+import { readBatteryLevelFromDevice } from '../../redux/listener';
 
 
 const BatteryLevel = () => {
   const dispatch = useAppDispatch()
+  const deviceBatteryLevel = useAppSelector((state) => state.ble.batteryLevel)
+  
+  
+  useEffect(() => {
+    console.log('Nivel de batería actualizado: ', deviceBatteryLevel)
+  } , [deviceBatteryLevel]); 
 
-  const deviceBatteryLevel = useAppSelector((state) => state.ble.batteryValue)
-
- useEffect(() => {
-    dispatch(startListening());
-  }, []);
  
   return (
     <View style={styles.container}>
       <Ionicons name="battery-full-outline" size={50} color="black" />
-      <Text style={styles.batteryLevelText}>{deviceBatteryLevel !== null ? deviceBatteryLevel : '0'}%</Text>
+      <Text style={styles.batteryLevelText}>{deviceBatteryLevel !== null ? `${deviceBatteryLevel}` : "Unknown"}%</Text>
     </View>
   );
 };

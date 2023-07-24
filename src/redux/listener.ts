@@ -1,9 +1,13 @@
 import { createAsyncThunk, createListenerMiddleware } from "@reduxjs/toolkit";
 import {
-  setBatteryValue,
+  setBatteryLevel,
+  setVelocity,
+  setLatitude,
+  setLongitude,
   setConnectedDevice,
   setDevice,
   startListening,
+  startListeningParams,
   startScanning,
 } from "./slice";
 
@@ -15,10 +19,50 @@ export const connectToDevice = createAsyncThunk(
   "bleThunk/connectToDevice",
   async (ref: DeviceReference, thunkApi) => {
     if (ref.id) {
-      await bluetoothLeManager.connectToPeripheral(ref.id);
-      thunkApi.dispatch(setConnectedDevice(ref));
-      bluetoothLeManager.stopScanningForPeripherals();
+      try {
+        await bluetoothLeManager.connectToPeripheral(ref.id);
+        thunkApi.dispatch(setConnectedDevice(ref));
+        bluetoothLeManager.stopScanningForPeripherals();
+        readBatteryLevelFromDevice()
+        readVelocityFromDevice()
+        readLatitudeFromDevice()
+        readLongitudeFromDevice()
+      } catch (error) {
+        console.log('Ha ocurrido un error al conectar el dispositivo: ', error);
+      }
     }
+  }
+);
+
+export const readBatteryLevelFromDevice = createAsyncThunk(
+  "bleThunk/readBatteryLevelFromDevice",
+  async (_, thunkApi) => {
+    const batteryValue = await bluetoothLeManager.readBatteryLevel();
+    batteryValue && thunkApi.dispatch(setBatteryLevel(batteryValue));
+  }
+);
+
+export const readVelocityFromDevice = createAsyncThunk(
+  "bleThunk/readVelocityFromDevice",
+  async (_, thunkApi) => {
+    const velocityValue = await bluetoothLeManager.readVelocity();
+    velocityValue && thunkApi.dispatch(setVelocity(velocityValue));
+  }
+);
+
+export const readLatitudeFromDevice = createAsyncThunk(
+  "bleThunk/readLatitudeFromDevice",
+  async (_, thunkApi) => {
+    const latitudeValue = await bluetoothLeManager.readLatitude();
+    latitudeValue && thunkApi.dispatch(setLatitude(latitudeValue));
+  }
+);
+
+export const readLongitudeFromDevice = createAsyncThunk(
+  "bleThunk/readLongitudeFromDevice",
+  async (_, thunkApi) => {
+    const longitudeValue = await bluetoothLeManager.readLongitude();
+    longitudeValue && thunkApi.dispatch(setLongitude(longitudeValue));
   }
 );
 
@@ -34,13 +78,41 @@ bleMiddleware.startListening({
   },
 });
 
+export const sendGamepadValue = createAsyncThunk(
+  "bleThunk/sendGamepadValue",
+  async (value: string, _) => {
+    await bluetoothLeManager.sendValue(value);
+    
+  }
+);
+
+
+
 bleMiddleware.startListening({
-  actionCreator: startListening,
+  actionCreator: startListeningParams, // New action for battery level
   effect: (_, listenerApi) => {
-    bluetoothLeManager.startStreamingData(({ payload }) => {
-      if (typeof payload === "string") {
-        listenerApi.dispatch(setBatteryValue(payload));
-      }
+    
+    readBatteryLevelFromDevice()
+    bluetoothLeManager.startStreamingBatteryLevel((batteryValue) => {
+      listenerApi.dispatch(setBatteryLevel(batteryValue));
     });
+
+    readVelocityFromDevice()
+    bluetoothLeManager.startStreamingVelocity((velocityValue) => {
+      listenerApi.dispatch(setVelocity(velocityValue));
+    });
+    
+    readLatitudeFromDevice()
+    bluetoothLeManager.startStreamingLatitude((latitudeValue) => {
+      listenerApi.dispatch(setLatitude(latitudeValue));
+    });
+
+    readLongitudeFromDevice()
+    bluetoothLeManager.startStreamingLongitude((longitudeValue) => {
+      listenerApi.dispatch(setLongitude(longitudeValue));
+    });
+
   },
+  
 });
+
