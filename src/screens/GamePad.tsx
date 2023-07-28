@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { FC, useEffect } from "react";
 import { StyleSheet, View, TouchableOpacity, Text, Image } from "react-native";
 import VelocityOdometer from "../components/gamePad/VelocityOdometer";
 import BatteryLevel from "../components/gamePad/BatteryLevel";
@@ -6,25 +6,31 @@ import GPSLocation from "../components/gamePad/GPSLocation";
 import { Device } from "react-native-ble-plx";
 import { useAppDispatch, useAppSelector } from "../redux/store";
 import { startListening, startListeningParams } from "../redux/slice";
-import { sendGamepadValue } from "../redux/listener";
+import { readBatteryLevelFromDevice, readLatitudeFromDevice, readLongitudeFromDevice, readVelocityFromDevice, sendGamepadValue } from "../redux/listener";
+import { NavigationProp } from "@react-navigation/native";
 
+type GamepadProps = {
+  navigation: NavigationProp<any, any>;
+};
 
+const GamePad: FC<GamepadProps> = (props) => {
 
-const GamePad = () => {
+  const { navigation } = props;
+
   const dispatch = useAppDispatch();
 
   useEffect(() => {
     dispatch(startListeningParams());
-  },[]); 
+  }, [dispatch]);
 
   const sendData = (gamepadValue: string) => {
     dispatch(sendGamepadValue(gamepadValue));
   };
 
-  const handleButtonPress = ( buttonValue: string) => {
+  const handleButtonPress = (buttonValue: string) => {
     console.log(`Button pressed: ${buttonValue}`);
   };
-
+  navigation.navigate("GamePad");
   return (
     <View style={styles.container}>
       <View style={styles.titleWrapper}>
@@ -46,10 +52,7 @@ const GamePad = () => {
           <Text style={styles.buttonText}>▲</Text>
         </TouchableOpacity>
         <View style={styles.row}>
-          <TouchableOpacity
-            style={styles.button}
-            onPress={() => sendData("L")}
-          >
+          <TouchableOpacity style={styles.button} onPress={() => sendData("L")}>
             <Text style={styles.buttonText}>◀</Text>
           </TouchableOpacity>
 
@@ -60,10 +63,7 @@ const GamePad = () => {
             <Text style={styles.buttonText}>Detener</Text>
           </TouchableOpacity>
 
-          <TouchableOpacity
-            style={styles.button}
-            onPress={() => sendData("R")}
-          >
+          <TouchableOpacity style={styles.button} onPress={() => sendData("R")}>
             <Text style={styles.buttonText}>▶</Text>
           </TouchableOpacity>
         </View>

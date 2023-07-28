@@ -38,7 +38,7 @@ export const readBatteryLevelFromDevice = createAsyncThunk(
   "bleThunk/readBatteryLevelFromDevice",
   async (_, thunkApi) => {
     const batteryValue = await bluetoothLeManager.readBatteryLevel();
-    batteryValue && thunkApi.dispatch(setBatteryLevel(batteryValue));
+   thunkApi.dispatch(setBatteryLevel(batteryValue));
   }
 );
 
@@ -46,7 +46,7 @@ export const readVelocityFromDevice = createAsyncThunk(
   "bleThunk/readVelocityFromDevice",
   async (_, thunkApi) => {
     const velocityValue = await bluetoothLeManager.readVelocity();
-    velocityValue && thunkApi.dispatch(setVelocity(velocityValue));
+    thunkApi.dispatch(setVelocity(velocityValue));
   }
 );
 
@@ -54,7 +54,7 @@ export const readLatitudeFromDevice = createAsyncThunk(
   "bleThunk/readLatitudeFromDevice",
   async (_, thunkApi) => {
     const latitudeValue = await bluetoothLeManager.readLatitude();
-    latitudeValue && thunkApi.dispatch(setLatitude(latitudeValue));
+    thunkApi.dispatch(setLatitude(latitudeValue));
   }
 );
 
@@ -62,7 +62,7 @@ export const readLongitudeFromDevice = createAsyncThunk(
   "bleThunk/readLongitudeFromDevice",
   async (_, thunkApi) => {
     const longitudeValue = await bluetoothLeManager.readLongitude();
-    longitudeValue && thunkApi.dispatch(setLongitude(longitudeValue));
+    thunkApi.dispatch(setLongitude(longitudeValue));
   }
 );
 

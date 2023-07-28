@@ -52,7 +52,7 @@ const DeviceModal: FC<DeviceModalProps> = (props) => {
   useEffect(() => {
     dispatch(startScanning());
     {console.log('Lista de dispositivos', discoveredDevices)}
-  }, []);
+  }, []); 
 
   const onDeviceSelected = (deviceId: any) => {
     askConnect(deviceId);
@@ -101,8 +101,10 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   modalFlatlistContiner: {
+    marginVertical: 120,
     flex: 1,
-    backgroundColor:'blue'
+    marginHorizontal: 20,
+    
   },
   modalCellOutline: {
     borderWidth: 1,
@@ -130,7 +132,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     height: 50,
     marginHorizontal: 20,
-    marginBottom: 5,
+    marginVertical: 5,
     borderRadius: 8,
   },
   ctaButtonText: {

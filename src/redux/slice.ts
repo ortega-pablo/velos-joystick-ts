@@ -41,7 +41,7 @@ export const bleState = createSlice({
         state.allDevices = [...state.allDevices, action.payload];
       }
     },
-    setConnectedDevice: (state, action: PayloadAction<DeviceReference>) => {
+    setConnectedDevice: (state, action: PayloadAction<DeviceReference | null>) => {
       state.connectedDevice = action.payload;
     },
      setBatteryLevel: (

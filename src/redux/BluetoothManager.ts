@@ -52,6 +52,7 @@ class BluetoothLeManager {
     console.log('Caracterísitcas decubiertas exitosamente')
   };
 
+
   readBatteryLevel = async () => {
     if (!this.device) {
       console.log("Device is not connected."); // Optional error handling, you can choose how to handle this case.
