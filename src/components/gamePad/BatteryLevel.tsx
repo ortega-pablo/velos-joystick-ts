@@ -6,7 +6,7 @@ import { startListening } from '../../redux/slice';
 import { readBatteryLevelFromDevice } from '../../redux/listener';
 
 
-const BatteryLevel = () => {
+const BatteryLevel = () => { 
   const dispatch = useAppDispatch()
   const deviceBatteryLevel = useAppSelector((state) => state.ble.batteryLevel)
   
@@ -14,7 +14,7 @@ const BatteryLevel = () => {
   useEffect(() => {
     console.log('Nivel de batería actualizado: ', deviceBatteryLevel)
   } , [deviceBatteryLevel]); 
-
+ 
  
   return (
     <View style={styles.container}>

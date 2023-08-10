@@ -23,12 +23,29 @@ export const connectToDevice = createAsyncThunk(
         await bluetoothLeManager.connectToPeripheral(ref.id);
         thunkApi.dispatch(setConnectedDevice(ref));
         bluetoothLeManager.stopScanningForPeripherals();
-        readBatteryLevelFromDevice()
-        readVelocityFromDevice()
-        readLatitudeFromDevice()
-        readLongitudeFromDevice()
+        readBatteryLevelFromDevice();
+        readVelocityFromDevice();
+        readLatitudeFromDevice();
+        readLongitudeFromDevice();
       } catch (error) {
-        console.log('Ha ocurrido un error al conectar el dispositivo: ', error);
+        console.log("Ha ocurrido un error al conectar el dispositivo: ", error);
+      }
+    }
+  }
+);
+
+export const disconnectDevice = createAsyncThunk(
+  "bleThunk/disconnectDevice",
+  async (ref: DeviceReference, thunkApi) => {
+    if (ref.id) {
+      try {
+        await bluetoothLeManager.disconnectPeripheral(ref.id);
+        thunkApi.dispatch(setConnectedDevice(null));
+      } catch (error) {
+        console.log(
+          "Ha ocurrido un error al desconectar el dispositivo: ",
+          error
+        );
       }
     }
   }
@@ -38,7 +55,7 @@ export const readBatteryLevelFromDevice = createAsyncThunk(
   "bleThunk/readBatteryLevelFromDevice",
   async (_, thunkApi) => {
     const batteryValue = await bluetoothLeManager.readBatteryLevel();
-   thunkApi.dispatch(setBatteryLevel(batteryValue));
+    thunkApi.dispatch(setBatteryLevel(batteryValue));
   }
 );
 
@@ -66,6 +83,13 @@ export const readLongitudeFromDevice = createAsyncThunk(
   }
 );
 
+export const sendGamepadValue = createAsyncThunk(
+  "bleThunk/sendGamepadValue",
+  async (value: string, _) => {
+    await bluetoothLeManager.sendValue(value);
+  }
+);
+
 bleMiddleware.startListening({
   actionCreator: startScanning,
   effect: (_, listenerApi) => {
@@ -78,41 +102,30 @@ bleMiddleware.startListening({
   },
 });
 
-export const sendGamepadValue = createAsyncThunk(
-  "bleThunk/sendGamepadValue",
-  async (value: string, _) => {
-    await bluetoothLeManager.sendValue(value);
-    
-  }
-);
-
-
 
 bleMiddleware.startListening({
   actionCreator: startListeningParams, // New action for battery level
   effect: (_, listenerApi) => {
-    
-    readBatteryLevelFromDevice()
-    bluetoothLeManager.startStreamingBatteryLevel((batteryValue) => {
+
+    console.log('Entro al start listening')
+    readBatteryLevelFromDevice();
+    bluetoothLeManager.startStreamingBatteryLevel(async (batteryValue) => {
       listenerApi.dispatch(setBatteryLevel(batteryValue));
     });
-
-    readVelocityFromDevice()
+ 
+    readVelocityFromDevice();
     bluetoothLeManager.startStreamingVelocity((velocityValue) => {
       listenerApi.dispatch(setVelocity(velocityValue));
     });
-    
-    readLatitudeFromDevice()
+
+    readLatitudeFromDevice();
     bluetoothLeManager.startStreamingLatitude((latitudeValue) => {
       listenerApi.dispatch(setLatitude(latitudeValue));
     });
 
-    readLongitudeFromDevice()
+    readLongitudeFromDevice();
     bluetoothLeManager.startStreamingLongitude((longitudeValue) => {
       listenerApi.dispatch(setLongitude(longitudeValue));
     });
-
   },
-  
 });
-

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { FC, useEffect, useState } from "react";
 import {
   StyleSheet,
   Text,
@@ -14,14 +14,13 @@ import { BleManager, Device } from "react-native-ble-plx";
 import DeviceModal from "../components/DeviceModal";
 import { useAppSelector } from "../redux/store";
 
-interface BluetoothPairingProps {
+type BluetoothPairingProps = {
   navigation: NavigationProp<any, any>;
-  closeModal: () => void;
-  visible: boolean;
 }
 
-const BluetoothPairing = ({ navigation }: BluetoothPairingProps) => {
+const BluetoothPairing: FC<BluetoothPairingProps> = (props) => {
 
+  const { navigation } = props;
   const [isModalVisible, setIsModalVisible] = useState<boolean>(false);
   
   const hideModal = () => {

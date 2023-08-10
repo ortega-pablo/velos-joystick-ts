@@ -40,8 +40,8 @@ const DeviceModal: FC<DeviceModalProps> = (props) => {
         },
         {
           text: "Aceptar",
-          onPress: () => {
-            dispatch(connectToDevice(deviceId));
+          onPress: async () => {
+            await dispatch(connectToDevice(deviceId));
             closeModal();
             navigation.navigate("GamePad");
           },

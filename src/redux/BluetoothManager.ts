@@ -52,6 +52,11 @@ class BluetoothLeManager {
     console.log('Caracterísitcas decubiertas exitosamente')
   };
 
+  disconnectPeripheral = async (identifier: string) => {
+    this.device = await this.bleManager.cancelDeviceConnection(identifier);
+    console.log("Se ha desconectado con el dispositivo: ");
+
+  };
 
   readBatteryLevel = async () => {
     if (!this.device) {

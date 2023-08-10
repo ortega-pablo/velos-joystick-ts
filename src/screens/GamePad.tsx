@@ -1,28 +1,31 @@
 import React, { FC, useEffect } from "react";
-import { StyleSheet, View, TouchableOpacity, Text, Image } from "react-native";
+import { StyleSheet, View, TouchableOpacity, Text, Image, Alert } from "react-native";
 import VelocityOdometer from "../components/gamePad/VelocityOdometer";
 import BatteryLevel from "../components/gamePad/BatteryLevel";
 import GPSLocation from "../components/gamePad/GPSLocation";
 import { Device } from "react-native-ble-plx";
 import { useAppDispatch, useAppSelector } from "../redux/store";
-import { startListening, startListeningParams } from "../redux/slice";
-import { readBatteryLevelFromDevice, readLatitudeFromDevice, readLongitudeFromDevice, readVelocityFromDevice, sendGamepadValue } from "../redux/listener";
+import { setBatteryLevel, setLatitude, setLongitude, setVelocity, startListening, startListeningParams } from "../redux/slice";
+import { disconnectDevice, readBatteryLevelFromDevice, readLatitudeFromDevice, readLongitudeFromDevice, readVelocityFromDevice, sendGamepadValue } from "../redux/listener";
 import { NavigationProp } from "@react-navigation/native";
+import { DeviceReference } from "../redux/BluetoothManager";
 
-type GamepadProps = {
+type GamepadProps = { 
   navigation: NavigationProp<any, any>;
 };
 
 const GamePad: FC<GamepadProps> = (props) => {
 
   const { navigation } = props;
+  const connectedDevice = useAppSelector((state) => state.ble.connectedDevice);
 
   const dispatch = useAppDispatch();
-
+ 
   useEffect(() => {
+    console.log('Entro al useEffect de Gamepad')
     dispatch(startListeningParams());
-  }, [dispatch]);
-
+  }, []);
+ 
   const sendData = (gamepadValue: string) => {
     dispatch(sendGamepadValue(gamepadValue));
   };
@@ -30,9 +33,31 @@ const GamePad: FC<GamepadProps> = (props) => {
   const handleButtonPress = (buttonValue: string) => {
     console.log(`Button pressed: ${buttonValue}`);
   };
-  navigation.navigate("GamePad");
+  
+  const handleDisconnect = () => 
+    Alert.alert(
+      "Desconectar dispositivo",
+      "¿Seguro que desea salir?",
+      [
+        {
+          text: "Cancelar",
+          onPress: () => console.log("Cancel Pressed"),
+          style: "cancel",
+        },
+        {
+          text: "Aceptar",
+          onPress: () => {
+            if (connectedDevice) {
+              dispatch(disconnectDevice(connectedDevice));
+            }
+            navigation.navigate("BluetoothPairing");
+          },
+        },
+      ]
+    );
+
   return (
-    <View style={styles.container}>
+    <View style={styles.container}> 
       <View style={styles.titleWrapper}>
         <Image
           source={require("../../assets/logo-velos.png")}
@@ -81,7 +106,7 @@ const GamePad: FC<GamepadProps> = (props) => {
       <View style={styles.rowLarge}>
         <TouchableOpacity
           style={styles.button}
-          onPress={() => handleButtonPress("Salir")}
+          onPress={() => handleDisconnect()}
         >
           <Text style={styles.buttonText}>Salir</Text>
         </TouchableOpacity>
